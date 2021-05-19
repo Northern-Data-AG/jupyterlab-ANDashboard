@@ -41,8 +41,7 @@ from apps import AMDGpuProperties as amd
 def test_get_gpu_count(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
-    service = amd.getGPUCount(bash=bash)
-    gpu = service.get_gpu()
+    gpu = amd.gpus
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with("rocm-smi", capture_output=True)
@@ -97,8 +96,7 @@ def test_get_gpu_count(test_input, expected_sum, expected_len):
 def test_get_gpu_clock_freq(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
-    service = amd.getGPUClockFreq(bash=bash)
-    gpu = service.get_gpu()
+    gpu = amd.gpus
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with(["rocm-smi", "-g"], capture_output=True)
@@ -139,8 +137,7 @@ def test_get_gpu_clock_freq(test_input, expected_sum, expected_len):
 def test_get_gpu_mem_use(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
-    service = amd.getGPUMemUse(bash=bash)
-    gpu = service.get_gpu()
+    gpu = amd.gpus
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with(["rocm-smi", "--showmemuse"], capture_output=True)
@@ -195,8 +192,7 @@ def test_get_gpu_mem_use(test_input, expected_sum, expected_len):
 def test_get_gpu_pcie_use(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
-    service = amd.getGPUpcieUse(bash=bash)
-    gpu = service.get_gpu()
+    gpu = amd.gpus
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with(["rocm-smi", "-b"], capture_output=True)
@@ -245,8 +241,7 @@ def test_get_gpu_pcie_use(test_input, expected_sum, expected_len):
 def test_get_gpu_voltage(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
-    service = amd.getGPUVoltage(bash=bash)
-    gpu = service.get_gpu()
+    gpu = amd.gpus
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with(["rocm-smi", "--showvoltage"], capture_output=True)
