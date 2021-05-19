@@ -35,8 +35,10 @@ from apps import AMDGpuProperties as amd
         ============================= End of ROCm SMI Log ==============================\n',
         21,
         7
-    )])
-def test_getGPUCount(test_input, expected_sum, expected_len):
+    ),
+    ("rocm-smi: command not found", 0, 0)
+    ])
+def test_get_gpu_count(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
     service = amd.getGPUCount(bash=bash)
@@ -89,8 +91,10 @@ def test_getGPUCount(test_input, expected_sum, expected_len):
         ============================= End of ROCm SMI Log ==============================\n',
         5645,
         6
-    )])
-def test_getGPUClockFreq(test_input, expected_sum, expected_len):
+    ),
+    ("rocm-smi: command not found", 0, 0)
+    ])
+def test_get_gpu_clock_freq(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
     service = amd.getGPUClockFreq(bash=bash)
@@ -129,8 +133,10 @@ def test_getGPUClockFreq(test_input, expected_sum, expected_len):
         ============================= End of ROCm SMI Log ==============================\n',
         450,
         8
-    )])
-def test_getGPUMemUse(test_input, expected_sum, expected_len):
+    ),
+    ("rocm-smi: command not found", 0, 0)
+    ])
+def test_get_gpu_mem_use(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
     service = amd.getGPUMemUse(bash=bash)
@@ -183,8 +189,10 @@ def test_getGPUMemUse(test_input, expected_sum, expected_len):
         ============================= End of ROCm SMI Log ==============================\n',
         2002.5720000000001,
         7
-    )])
-def test_getGPUpcieUse(test_input, expected_sum, expected_len):
+    ),
+    ("rocm-smi: command not found", 0, 0)
+    ])
+def test_get_gpu_pcie_use(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
     service = amd.getGPUpcieUse(bash=bash)
@@ -231,8 +239,10 @@ def test_getGPUpcieUse(test_input, expected_sum, expected_len):
         ============================= End of ROCm SMI Log ==============================\n',
         0,
         0
-    )])
-def test_getGPUVoltage(test_input, expected_sum, expected_len):
+    ),
+    ("rocm-smi: command not found", 0, 0)
+    ])
+def test_get_gpu_voltage(test_input, expected_sum, expected_len):
     bash = MagicMock()
     bash.run().stdout = test_input
     service = amd.getGPUVoltage(bash=bash)
@@ -240,4 +250,3 @@ def test_getGPUVoltage(test_input, expected_sum, expected_len):
     assert len(gpu) == expected_len
     assert sum(gpu) == expected_sum
     bash.run.assert_called_with(["rocm-smi", "--showvoltage"], capture_output=True)
-    
