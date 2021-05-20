@@ -23,28 +23,39 @@ class AmdGpuProperties:
         try:
             output = self.bash.run("rocm-smi", capture_output=True).stdout
             if "ROCm System Management Interface" in output:
-                gpus_count = [int(num[-1]) for num in re.findall(r'\n\d{1,2}', str(output))]
-                return len(gpus_count)
+                gpus_count = [int(num) for num in re.findall(r'[0-9]* ', str(output)) if num != " "]
+                if len(gpus_count) == 0:
+                    return -1
+                else:
+                    return len(gpus_count)
             else:
-                raise ValueError("No GPUs have been found!")
-        except ValueError as v_err:
-            logger.error(v_err)
+                return -1
         except IndexError as i_err:
             logger.error("Unexpected return message while parsing ROCm output -", i_err)
         except FileNotFoundError as f_err:
             logger.error("ROCm is not installed -", f_err)
+
+    def get_gpu_utilization(self, flag="-u") -> List[int]:
+        """Return the utilization of each GPU in %."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout
+            if "ROCm System Management Interface" in output:
+                util = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', str(output))]
+                return util
+            else:
+                return [-1 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
 
     def get_gpu_clock_freq(self, flag="-g") -> List[int]:
         """Return the clock frequence of each GPU in Mhz."""
         try:
             output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout
             if "ROCm System Management Interface" in output:
-                freq = [int(num[1:-1]) for num in re.findall(r'\([0-9]*M', str(output))]
+                freq = [int(num[1:]) for num in re.findall(r'\([0-9]*', str(output))]
                 return freq
             else:
-                raise LookupError("Unexpected return message while parsing ROCm output - clock frequence not found")
-        except LookupError as l_err:
-            logger.error(l_err)
+                return [-1 for _ in range(self.gpus)]
         except IndexError as i_err:
             logger.error("Unexpected return message while parsing ROCm output -", i_err)
 
@@ -53,12 +64,10 @@ class AmdGpuProperties:
         try:
             output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout
             if "ROCm System Management Interface" in output:
-                memUse = [int(num[0:-1]) for num in re.findall(r'\d{1,3}\n', str(output))]
+                memUse = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', str(output))]
                 return memUse
             else:
-                raise LookupError("Unexpected return message while parsing ROCm output - memory usage not found")
-        except LookupError as l_err:
-            logger.error(l_err)
+                return [-1 for _ in range(self.gpus)]
         except IndexError as i_err:
             logger.error("Unexpected return message while parsing ROCm output -", i_err)
     
@@ -67,12 +76,10 @@ class AmdGpuProperties:
         try:
             output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout      # takes a few seconds
             if "ROCm System Management Interface" in output:
-                pcie_use = [float(num[1:-1]) for num in re.findall(r' [0-9]*\.[0-9]*\n', str(output))]
+                pcie_use = [float(num[:-1]) for num in re.findall(r' [0-9]*\.[0-9]*\n', str(output))]
                 return pcie_use
             else:
-                raise LookupError("Unexpected return message while parsing ROCm output - PCIe bandwith not found")
-        except LookupError as l_err:
-            logger.error(l_err)
+                return [-1.0 for _ in range(self.gpus)]
         except IndexError as i_err:
             logger.error("Unexpected return message while parsing ROCm output -", i_err)
 
@@ -84,8 +91,6 @@ class AmdGpuProperties:
                 voltage = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', str(output))]
                 return voltage
             else:
-                raise LookupError("Unexpected return message while parsing ROCm output - Voltage not found")
-        except LookupError as l_err:
-            logger.error(l_err)
+                return [-1 for _ in range(self.gpus)]
         except IndexError as i_err:
             logger.error("Unexpected return message while parsing ROCm output -", i_err)
