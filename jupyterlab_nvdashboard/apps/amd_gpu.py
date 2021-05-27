@@ -31,7 +31,7 @@ class AmdGpuProperties:
             else:
                 return -1
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. gpu count -", i_err)
         except FileNotFoundError as f_err:
             logger.error("ROCm is not installed -", f_err)
 
@@ -43,9 +43,9 @@ class AmdGpuProperties:
                 util = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
                 return util
             else:
-                return [-1 for _ in range(self.gpus)]
+                return [-1 for _ in range(self.gpus)]       # return []
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. gpu utilization -", i_err)
 
     def get_gpu_clock_freq(self, flag="-g") -> List[int]:
         """Return the clock frequence of each GPU in Mhz."""
@@ -55,21 +55,21 @@ class AmdGpuProperties:
                 freq = [int(num[1:]) for num in re.findall(r'\([0-9]*', output)]
                 return freq
             else:
-                return [-1 for _ in range(self.gpus)]
+                return [-1 for _ in range(self.gpus)]       # return []
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. clock frequency -", i_err)
 
-    def get_gpu_mem_use(self, flag="--showmemuse") -> List[int]:
-        """Return the current memory usage of each GPU in %."""
+    def get_gpu_vram_use(self) -> List[int]:
+        """Return the current v-ram usage of each GPU in %."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run("rocm-smi", capture_output=True).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
-                memUse = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
-                return memUse
+                vramUse = [int(num[:-1]) for num in re.findall(r' [0-9]*%', output)]
+                return [vramUse[i] for i in range(len(vramUse)) if i % 2 == 0]
             else:
-                return [-1 for _ in range(self.gpus)]
+                return [-1 for _ in range(self.gpus)]       # return []
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. v-ram usage -", i_err)
     
     def get_gpu_pcie_bandwith(self, flag="-b") -> List[float]:
         """Return the estimated maximum PCIe bandwith in MB/s."""
@@ -79,9 +79,9 @@ class AmdGpuProperties:
                 pcie_use = [float(num[:-1]) for num in re.findall(r' [0-9]*\.[0-9]*\n', output)]
                 return pcie_use
             else:
-                return [-1.0 for _ in range(self.gpus)]
+                return [-1.0 for _ in range(self.gpus)]     # return []
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. pcie bandwith -", i_err)
 
     def get_gpu_voltage(self, flag="--showvoltage") -> List[int]:
         """Return the current Voltage per GPU in mV."""
@@ -91,6 +91,6 @@ class AmdGpuProperties:
                 voltage = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
                 return voltage
             else:
-                return [-1 for _ in range(self.gpus)]
+                return [-1 for _ in range(self.gpus)]       # return []
         except IndexError as i_err:
-            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+            logger.error("Unexpected return message while parsing ROCm output w.r.t. gpu voltage -", i_err)
