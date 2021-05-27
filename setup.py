@@ -16,14 +16,14 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 name="jupyterlab_nvdashboard"
 
 # Get our version
-if 'GIT_DESCRIBE_TAG' in os.environ:
-    describe_tag = os.environ['GIT_DESCRIBE_TAG']
-    version = describe_tag.lstrip('v') + os.environ.get('VERSION_SUFFIX', '')
-    if describe_tag[-1] == 'a':
-        version += os.environ['GIT_DESCRIBE_NUMBER']
-else:
-    # get version from package.json (to avoid duplicating)
-    with open(os.path.join(HERE, 'package.json'), encoding='utf-8') as f:
+# if 'GIT_DESCRIBE_TAG' in os.environ:
+#     describe_tag = os.environ['GIT_DESCRIBE_TAG']
+#     version = describe_tag.lstrip('v') + os.environ.get('VERSION_SUFFIX', '')
+#     if describe_tag[-1] == 'a':
+#         version += os.environ['GIT_DESCRIBE_NUMBER']
+# else:
+#     # get version from package.json (to avoid duplicating)
+with open(os.path.join(HERE, 'package.json'), encoding='utf-8') as f:
         version = json.load(f)['version']
 
 lab_path = os.path.join(HERE, name, "labextension")
@@ -88,13 +88,14 @@ setup_args = dict(
     },
     zip_safe=False,
     include_package_data=True,
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     license="BSD-3-Clause",
     platforms="Linux, Mac OS X, Windows",
     keywords=["Jupyter", "JupyterLab", "JupyterLab3"],
     classifiers=[
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

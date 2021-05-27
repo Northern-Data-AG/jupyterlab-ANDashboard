@@ -3,30 +3,127 @@ from bokeh.models import DataRange1d, NumeralTickFormatter, BasicTicker
 from bokeh.layouts import column
 from bokeh.models.mappers import LinearColorMapper
 from bokeh.palettes import all_palettes
-
-import math
 import time
-
-import pynvml
+import subprocess
+import logging
+import re
+from typing import List
+from statistics import mean
 
 from jupyterlab_nvdashboard.utils import format_bytes
+
+
+logging.basicConfig(
+    filename="amd_gpu.log",
+    level=logging.ERROR,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+class AmdGpuProperties:
+    def __init__(self, bash=subprocess):
+        self.bash = bash
+        self.gpus = self.get_gpu_count()
+
+    def get_gpu_count(self) -> int:
+        """Get the number of working GPUs."""
+        try:
+            output = self.bash.run("rocm-smi", capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                gpus_count = [int(num) for num in re.findall(r'[0-9]* ', output) if num != " "]
+                if len(gpus_count) == 0:
+                    return -1
+                else:
+                    return len(gpus_count)
+            else:
+                return -1
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+        except FileNotFoundError as f_err:
+            logger.error("ROCm is not installed -", f_err)
+
+    def get_gpu_utilization(self, flag="-u") -> List[int]:
+        """Return the utilization of each GPU in %."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                util = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
+                
+                return util
+            else:
+                return [-1 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+
+    def get_gpu_clock_freq(self, flag="-g") -> List[int]:
+        """Return the clock frequence of each GPU in Mhz."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                freq = [int(num[1:]) for num in re.findall(r'\([0-9]*', output)]
+                return freq
+            else:
+                return [-1 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+
+    def get_gpu_mem_use(self, flag="--showmemuse") -> List[int]:
+        """Return the current memory usage of each GPU in %."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                memUse = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
+                
+                return memUse
+            else:
+                return [-1 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+    
+    def get_gpu_pcie_bandwith(self, flag="-b") -> List[float]:
+        """Return the estimated maximum PCIe bandwith in MB/s."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                pcie_use = [float(num[:-1]) for num in re.findall(r' [0-9]*\.[0-9]*\n', output)]
+                return pcie_use
+            else:
+                return [-1.0 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+
+    def get_gpu_voltage(self, flag="--showvoltage") -> List[int]:
+        """Return the current Voltage per GPU in mV."""
+        try:
+            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            if "ROCm System Management Interface" in output:
+                voltage = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
+                return voltage
+            else:
+                return [-1 for _ in range(self.gpus)]
+        except IndexError as i_err:
+            logger.error("Unexpected return message while parsing ROCm output -", i_err)
+
+
+
+
 
 KB = 1e3
 MB = KB * KB
 GB = MB * KB
-pynvml.nvmlInit()
-ngpus = pynvml.nvmlDeviceGetCount()
-gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
+amd = AmdGpuProperties()
 
+
+ngpus = amd.get_gpu_count()
+gpu_handles = [i for i in range(ngpus)]
 
 def gpu(doc):
     fig = figure(title="GPU Utilization", sizing_mode="stretch_both", x_range=[0, 100])
 
     def get_utilization():
-        return [
-            pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu
-            for i in range(ngpus)
-        ]
+        return amd.get_gpu_utilization()
 
     gpu = get_utilization()
     y = list(range(len(gpu)))
@@ -49,422 +146,74 @@ def gpu(doc):
     def cb():
         source.data.update({"gpu": get_utilization()})
 
-    doc.add_periodic_callback(cb, 200)
+    doc.add_periodic_callback(cb, 1000)
 
 
 def gpu_mem(doc):
-    def get_mem():
-        return [pynvml.nvmlDeviceGetMemoryInfo(handle).used for handle in gpu_handles]
+    fig = figure(title="GPU Memory Utilization", sizing_mode="stretch_both", x_range=[0, 100])
 
-    def get_total():
-        return pynvml.nvmlDeviceGetMemoryInfo(gpu_handles[0]).total
+    def get_utilization():
+        return amd.get_gpu_utilization()
 
-    fig = figure(
-        title="GPU Memory", sizing_mode="stretch_both", x_range=[0, get_total()]
-    )
-
-    gpu = get_mem()
-
+    gpu = get_utilization()
     y = list(range(len(gpu)))
-    source = ColumnDataSource({"right": y, "gpu": gpu})
-    mapper = LinearColorMapper(
-        palette=all_palettes["RdYlBu"][8], low=0, high=get_total()
-    )
+    source = ColumnDataSource({"right": y, "memory": gpu})
+    mapper = LinearColorMapper(palette=all_palettes["RdYlBu"][4], low=0, high=100)
 
     fig.hbar(
         source=source,
         y="right",
-        right="gpu",
+        right="memory",
         height=0.8,
-        color={"field": "gpu", "transform": mapper},
+        color={"field": "memory", "transform": mapper},
     )
-    fig.xaxis[0].formatter = NumeralTickFormatter(format="0.0 b")
-    fig.xaxis.major_label_orientation = -math.pi / 12
 
     fig.toolbar_location = None
 
-    doc.title = "GPU Memory"
+    doc.title = "GPU Memory Utilization [%]"
     doc.add_root(fig)
 
     def cb():
-        mem = get_mem()
-        source.data.update({"gpu": mem})
-        fig.title.text = "GPU Memory: {}".format(format_bytes(sum(mem)))
+        source.data.update({"memory": get_utilization()})
 
-    doc.add_periodic_callback(cb, 200)
+    doc.add_periodic_callback(cb, 1000)
 
+def gpu_clock_frequency(doc):
+   
+    fig = figure(title="GPU Clock Frequency [Mhz]", sizing_mode="stretch_both", y_range=[0, 2200])
 
-def pci(doc):
-
-    # Use device-0 to get "upper bound"
-    pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
-    pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
-    pci_bw = {
-        # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
-        # [Note: Using specs at https://en.wikipedia.org/wiki/PCI_Express]
-        1: (250.0 * MB),
-        2: (500.0 * MB),
-        3: (985.0 * MB),
-        4: (1969.0 * MB),
-        5: (3938.0 * MB),
-        6: (7877.0 * MB),
-    }
-    # Max PCIe Throughput = BW-per-lane * Width
-    max_rxtx_tp = pci_width * pci_bw[pci_gen]
-
-    pci_tx = [
-        pynvml.nvmlDeviceGetPcieThroughput(
-            gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-        )
-        * KB
-        for i in range(ngpus)
-    ]
-
-    pci_rx = [
-        pynvml.nvmlDeviceGetPcieThroughput(
-            gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-        )
-        * KB
-        for i in range(ngpus)
-    ]
-
-    left = list(range(ngpus))
+    frequency = amd.get_gpu_clock_freq()
+    print(frequency)
+    left = list(range(len(frequency)))
     right = [l + 0.8 for l in left]
-    source = ColumnDataSource(
-        {"left": left, "right": right, "pci-tx": pci_tx, "pci-rx": pci_rx}
-    )
-    mapper = LinearColorMapper(
-        palette=all_palettes["RdYlBu"][4], low=0, high=max_rxtx_tp
-    )
 
-    tx_fig = figure(
-        title="TX PCIe [B/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
-    )
-    tx_fig.quad(
+    source = ColumnDataSource({"left": left, "right": right, "frequency": frequency})
+    mapper = LinearColorMapper(palette=all_palettes["RdYlBu"][4], low=0, high=4000)
+
+    fig.quad(
         source=source,
         left="left",
         right="right",
         bottom=0,
-        top="pci-tx",
-        color={"field": "pci-tx", "transform": mapper},
+        top="frequency",
+        color={"field": "frequency", "transform": mapper},
     )
-    tx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    tx_fig.toolbar_location = None
 
-    rx_fig = figure(
-        title="RX PCIe [B/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
-    )
-    rx_fig.quad(
-        source=source,
-        left="left",
-        right="right",
-        bottom=0,
-        top="pci-rx",
-        color={"field": "pci-rx", "transform": mapper},
-    )
-    rx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    rx_fig.toolbar_location = None
-
-    doc.title = "PCIe Throughput"
-    doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
+    doc.title = "GPU Clock Frequency"
+    doc.add_root(fig)
 
     def cb():
-        src_dict = {}
-        src_dict["pci-tx"] = [
-            pynvml.nvmlDeviceGetPcieThroughput(
-                gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-            )
-            * KB
-            for i in range(ngpus)
-        ]
-        src_dict["pci-rx"] = [
-            pynvml.nvmlDeviceGetPcieThroughput(
-                gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-            )
-            * KB
-            for i in range(ngpus)
-        ]
-        source.data.update(src_dict)
+        source.data.update({"frequency": frequency})
 
-    doc.add_periodic_callback(cb, 200)
+    doc.add_periodic_callback(cb, 1000)
 
 
-def nvlink(doc):
 
-    import subprocess as sp
-
-    # Use device-0/link-0 to get "upper bound"
-    counter = 1
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
-    nvlink_link_bw = {
-        # Keys = NVLink Version, Values = Max Link BW (per direction)
-        # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]
-        1: 20.0 * GB,  # GB/s
-        2: 25.0 * GB,  # GB/s
-    }
-    # Max NVLink Throughput = BW-per-link * nlinks
-    max_bw = nlinks * nvlink_link_bw.get(nvlink_ver, 25.0 * GB)
-
-    # nvmlDeviceSetNvLinkUtilizationControl seems limited, using smi:
-    sp.call(
-        [
-            "nvidia-smi",
-            "nvlink",
-            "--setcontrol",
-            str(counter) + "bz",  # Get output in bytes
-        ]
-    )
-
-    tx_fig = figure(
-        title="TX NVLink [B/s]", sizing_mode="stretch_both", y_range=[0, max_bw]
-    )
-    tx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    nvlink_state = {}
-    nvlink_state["tx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["tx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
-    nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
-    left = list(range(ngpus))
-    right = [l + 0.8 for l in left]
-    source = ColumnDataSource(
-        {
-            "left": left,
-            "right": right,
-            "count-tx": [0.0 for i in range(ngpus)],
-            "count-rx": [0.0 for i in range(ngpus)],
-        }
-    )
-    mapper = LinearColorMapper(palette=all_palettes["RdYlBu"][4], low=0, high=max_bw)
-
-    tx_fig.quad(
-        source=source,
-        left="left",
-        right="right",
-        bottom=0,
-        top="count-tx",
-        color={"field": "count-tx", "transform": mapper},
-    )
-    tx_fig.toolbar_location = None
-
-    rx_fig = figure(
-        title="RX NVLink [B/s]", sizing_mode="stretch_both", y_range=[0, max_bw]
-    )
-    rx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    nvlink_state["rx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["rx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
-    nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
-
-    rx_fig.quad(
-        source=source,
-        left="left",
-        right="right",
-        bottom=0,
-        top="count-rx",
-        color={"field": "count-rx", "transform": mapper},
-    )
-    rx_fig.toolbar_location = None
-
-    doc.title = "NVLink Utilization Counters"
-    doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
-
-    def cb():
-        nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
-        nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
-        src_dict = {}
-        nvlink_state["tx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["tx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        nvlink_state["rx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["rx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        src_dict["count-tx"] = [
-            max(a - b, 0.0) * 5.0
-            for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
-        ]
-        src_dict["count-rx"] = [
-            max(a - b, 0.0) * 5.0
-            for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
-        ]
-
-        source.data.update(src_dict)
-
-    doc.add_periodic_callback(cb, 200)
-
-
-def nvlink_timeline(doc):
-
-    # X Range
-    x_range = DataRange1d(follow="end", follow_interval=20000, range_padding=0)
-    tools = "reset,xpan,xwheel_zoom"
-
-    item_dict = {"time": []}
-    for i in range(ngpus):
-        item_dict["nvlink-tx-" + str(i)] = []
-        item_dict["nvlink-rx-" + str(i)] = []
-
-    source = ColumnDataSource(item_dict)
-
-    def _get_color(ind):
-        color_list = [
-            "blue",
-            "red",
-            "green",
-            "black",
-            "brown",
-            "cyan",
-            "orange",
-            "pink",
-            "purple",
-            "gold",
-        ]
-        return color_list[ind % len(color_list)]
-
-    tx_fig = figure(
-        title="TX NVLink (per Device) [B/s]",
-        sizing_mode="stretch_both",
-        x_axis_type="datetime",
-        x_range=x_range,
-        tools=tools,
-    )
-    rx_fig = figure(
-        title="RX NVLink (per Device) [B/s]",
-        sizing_mode="stretch_both",
-        x_axis_type="datetime",
-        x_range=x_range,
-        tools=tools,
-    )
-    for i in range(ngpus):
-        tx_fig.line(
-            source=source, x="time", y="nvlink-tx-" + str(i), color=_get_color(i)
-        )
-        rx_fig.line(
-            source=source, x="time", y="nvlink-rx-" + str(i), color=_get_color(i)
-        )
-    tx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    rx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-
-    doc.title = "NVLink Throughput Timeline"
-    doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
-
-    counter = 1
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_state = {}
-    nvlink_state["tx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["tx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
-    nvlink_state["rx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["rx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
-    nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
-    nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
-
-    last_time = time.time()
-
-    def cb():
-        nonlocal last_time
-        nonlocal nvlink_state
-        now = time.time()
-        src_dict = {"time": [now * 1000]}
-
-        nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
-        nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
-        nvlink_state["tx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["tx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        nvlink_state["rx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["rx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        tx_diff = [
-            max(a - b, 0.0) * 5.0
-            for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
-        ]
-
-        rx_diff = [
-            max(a - b, 0.0) * 5.0
-            for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
-        ]
-
-        for i in range(ngpus):
-            src_dict["nvlink-tx-" + str(i)] = [tx_diff[i]]
-            src_dict["nvlink-rx-" + str(i)] = [rx_diff[i]]
-        source.stream(src_dict, 1000)
-        last_time = now
-
-    doc.add_periodic_callback(cb, 200)
 
 
 def gpu_resource_timeline(doc):
 
-    memory_list = [
-        pynvml.nvmlDeviceGetMemoryInfo(handle).total / (1024 * 1024)
-        for handle in gpu_handles
-    ]
+    memory_list = amd.getGPUMemUse()
     gpu_mem_max = max(memory_list) * (1024 * 1024)
     gpu_mem_sum = sum(memory_list)
 
@@ -569,20 +318,10 @@ def gpu_resource_timeline(doc):
         tx_tot = 0
         rx_tot = 0
         for i in range(ngpus):
-            gpu = pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu
-            mem = pynvml.nvmlDeviceGetMemoryInfo(gpu_handles[i]).used
-            tx = (
-                pynvml.nvmlDeviceGetPcieThroughput(
-                    gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-                )
-                * 1024
-            )
-            rx = (
-                pynvml.nvmlDeviceGetPcieThroughput(
-                    gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-                )
-                * 1024
-            )
+            gpu = amd.get_gpu_utilization()
+            mem = amd.get_gpu_mem_use()
+            tx = 0
+            rx = 0
             gpu_tot += gpu
             mem_tot += mem / (1024 * 1024)
             rx_tot += rx

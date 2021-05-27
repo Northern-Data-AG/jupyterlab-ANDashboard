@@ -1,0 +1,300 @@
+2021-05-25 11:06:45,427 INFO tornado.access 200 GET / (127.0.0.1) 3.79ms
+2021-05-25 11:06:45,430 INFO tornado.access 200 GET /index.json?1621940804144 (127.0.0.1) 0.51ms
+2021-05-25 11:06:48,125 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 101.63ms
+2021-05-25 11:06:48,166 INFO tornado.access 200 GET /static/js/bokeh.min.js?v=34492a651483e52ab93f122d922484233256bf44948e2fc265422ab409533866f6f8fe46c6e6e120eb72100deac48f64ad53bececef3b710aaa2347400aa35a8 (127.0.0.1) 4.38ms
+2021-05-25 11:06:48,168 INFO tornado.access 200 GET /static/js/bokeh-tables.min.js?v=6338e59efcd5250dd6f683adeca22267d976417bfee27fd6847f1efe02c3040ec217495fbdf23c9ad255f8c876bcc5f04b7ef2f170c4ca404cc6a8d339322461 (127.0.0.1) 1.19ms
+2021-05-25 11:06:48,169 INFO tornado.access 200 GET /static/js/bokeh-widgets.min.js?v=63055547e2b9c94e52e9372e9e2d7ffef99861d0af906982eb2fec0eb7f96409b305d13c5b0adf8389146ba1ab994a1a79f7573669c27f9b9e52033ab8f163e9 (127.0.0.1) 0.91ms
+2021-05-25 11:06:48,679 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.26ms
+2021-05-25 11:06:56,727 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 167, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 159, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:06:56,728 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 8.51ms
+2021-05-25 11:06:58,457 ERROR tornado.application Uncaught exception GET /GPU-Resources (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Resources', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 465, in gpu_resource_timeline
+    memory_list = amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:06:58,457 ERROR tornado.access 500 GET /GPU-Resources (127.0.0.1) 2.20ms
+2021-05-25 11:07:08,005 INFO tornado.access 200 GET /Machine-Resources (127.0.0.1) 50.01ms
+2021-05-25 11:07:08,140 INFO tornado.access 101 GET /Machine-Resources/ws (127.0.0.1) 0.94ms
+2021-05-25 11:08:25,929 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 97.40ms
+2021-05-25 11:08:26,100 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 0.85ms
+2021-05-25 11:08:29,429 ERROR tornado.application Uncaught exception GET /GPU-Resources (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Resources', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 465, in gpu_resource_timeline
+    memory_list = amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:08:29,429 ERROR tornado.access 500 GET /GPU-Resources (127.0.0.1) 2.08ms
+2021-05-25 11:08:30,529 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 98.94ms
+2021-05-25 11:08:30,687 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.15ms
+2021-05-25 11:08:31,487 INFO tornado.access 200 GET /Machine-Resources (127.0.0.1) 47.80ms
+2021-05-25 11:08:31,725 INFO tornado.access 101 GET /Machine-Resources/ws (127.0.0.1) 1.75ms
+2021-05-25 11:08:33,044 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 96.93ms
+2021-05-25 11:08:33,281 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.26ms
+2021-05-25 11:08:36,187 ERROR tornado.application Exception in callback <bound method BokehTornado._keep_alive of <bokeh.server.tornado.BokehTornado object at 0x7fc212d1a7c0>>
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/ioloop.py", line 905, in _run
+    return self.callback()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/tornado.py", line 704, in _keep_alive
+    c.send_ping()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/connection.py", line 75, in send_ping
+    self._socket.ping(codecs.encode(str(self._ping_count), "utf-8"))
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/websocket.py", line 445, in ping
+    raise WebSocketClosedError()
+tornado.websocket.WebSocketClosedError
+2021-05-25 11:08:43,756 INFO tornado.access 200 GET /index.json?1621940923074 (127.0.0.1) 1.54ms
+2021-05-25 11:08:43,930 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 174.77ms
+2021-05-25 11:08:44,274 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 39.93ms
+2021-05-25 11:09:34,652 INFO tornado.access 200 GET / (127.0.0.1) 3.59ms
+2021-05-25 11:09:34,657 INFO tornado.access 200 GET /index.json?1621940973361 (127.0.0.1) 0.48ms
+2021-05-25 11:09:34,757 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 99.34ms
+2021-05-25 11:09:34,892 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 0.83ms
+2021-05-25 11:09:39,078 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 167, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 159, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:09:39,080 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 8.66ms
+2021-05-25 11:10:01,741 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 99.45ms
+2021-05-25 11:10:01,869 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 0.86ms
+2021-05-25 11:12:46,598 INFO tornado.access 200 GET / (127.0.0.1) 3.52ms
+2021-05-25 11:12:46,603 INFO tornado.access 200 GET /index.json?1621941165302 (127.0.0.1) 0.49ms
+2021-05-25 11:12:46,609 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 168, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 160, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:12:46,610 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 6.51ms
+2021-05-25 11:12:46,707 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 97.20ms
+2021-05-25 11:12:46,838 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 0.80ms
+2021-05-25 11:13:30,018 INFO tornado.access 200 GET / (127.0.0.1) 3.66ms
+2021-05-25 11:13:30,021 INFO tornado.access 200 GET /index.json?1621941208723 (127.0.0.1) 0.49ms
+2021-05-25 11:13:30,027 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 168, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 160, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:13:30,028 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 6.10ms
+2021-05-25 11:13:30,127 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 99.09ms
+2021-05-25 11:13:30,256 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 0.81ms
+2021-05-25 11:16:15,398 INFO tornado.access 200 GET / (127.0.0.1) 3.54ms
+2021-05-25 11:16:15,402 INFO tornado.access 200 GET /index.json?1621941374110 (127.0.0.1) 0.61ms
+2021-05-25 11:16:15,409 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 169, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 161, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 11:16:15,410 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 7.10ms
+2021-05-25 11:16:15,511 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 107.85ms
+2021-05-25 11:16:15,785 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.25ms
+2021-05-25 12:23:01,763 INFO tornado.access 200 GET / (127.0.0.1) 3.63ms
+2021-05-25 12:23:01,767 INFO tornado.access 200 GET /index.json?1621945380411 (127.0.0.1) 0.58ms
+2021-05-25 12:23:01,872 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 104.03ms
+2021-05-25 12:23:01,875 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 169, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 161, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 12:23:01,876 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 4.22ms
+2021-05-25 12:23:01,917 INFO tornado.access 200 GET /static/js/bokeh.min.js?v=34492a651483e52ab93f122d922484233256bf44948e2fc265422ab409533866f6f8fe46c6e6e120eb72100deac48f64ad53bececef3b710aaa2347400aa35a8 (127.0.0.1) 4.45ms
+2021-05-25 12:23:01,918 INFO tornado.access 200 GET /static/js/bokeh-widgets.min.js?v=63055547e2b9c94e52e9372e9e2d7ffef99861d0af906982eb2fec0eb7f96409b305d13c5b0adf8389146ba1ab994a1a79f7573669c27f9b9e52033ab8f163e9 (127.0.0.1) 1.20ms
+2021-05-25 12:23:01,919 INFO tornado.access 200 GET /static/js/bokeh-tables.min.js?v=6338e59efcd5250dd6f683adeca22267d976417bfee27fd6847f1efe02c3040ec217495fbdf23c9ad255f8c876bcc5f04b7ef2f170c4ca404cc6a8d339322461 (127.0.0.1) 1.64ms
+2021-05-25 12:23:02,368 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.24ms
+2021-05-25 12:25:20,847 INFO tornado.access 200 GET / (127.0.0.1) 3.62ms
+2021-05-25 12:25:20,850 INFO tornado.access 200 GET /index.json?1621945519362 (127.0.0.1) 0.61ms
+2021-05-25 12:25:22,174 INFO tornado.access 200 GET /index.json?1621945521430 (127.0.0.1) 0.58ms
+2021-05-25 12:25:27,089 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 102.79ms
+2021-05-25 12:25:27,361 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.16ms
+2021-05-25 12:41:52,242 INFO tornado.access 200 GET / (127.0.0.1) 3.65ms
+2021-05-25 12:41:52,247 INFO tornado.access 200 GET /index.json?1621946510936 (127.0.0.1) 0.59ms
+2021-05-25 12:41:52,253 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 169, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 161, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 12:41:52,254 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 6.69ms
+2021-05-25 12:41:52,357 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 102.14ms
+2021-05-25 12:41:52,716 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.27ms
+2021-05-25 15:19:45,637 INFO tornado.access 200 GET / (127.0.0.1) 3.60ms
+2021-05-25 15:19:45,642 INFO tornado.access 200 GET /index.json?1621955984278 (127.0.0.1) 0.48ms
+2021-05-25 15:19:45,648 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 169, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 161, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 15:19:45,650 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 6.74ms
+2021-05-25 15:19:45,747 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 103.71ms
+2021-05-25 15:19:46,021 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.26ms
+2021-05-25 15:20:19,821 INFO tornado.access 200 GET / (127.0.0.1) 3.57ms
+2021-05-25 15:20:19,826 INFO tornado.access 200 GET /index.json?1621956018458 (127.0.0.1) 0.47ms
+2021-05-25 15:20:19,832 ERROR tornado.application Uncaught exception GET /GPU-Memory (127.0.0.1)
+HTTPServerRequest(protocol='http', host='localhost:8890', method='GET', uri='/GPU-Memory', version='HTTP/1.1', remote_ip='127.0.0.1')
+Traceback (most recent call last):
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/tornado/web.py", line 1704, in _execute
+    result = await result
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/doc_handler.py", line 52, in get
+    session = await self.get_session()
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/views/session_handler.py", line 120, in get_session
+    session = await self.application_context.create_session_if_needed(session_id, self.request, token)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/server/contexts.py", line 218, in create_session_if_needed
+    self._application.initialize_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/application.py", line 171, in initialize_document
+    h.modify_document(doc)
+  File "/home/pocadmin/.local/lib/python3.8/site-packages/bokeh/application/handlers/function.py", line 132, in modify_document
+    self._func(doc)
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 170, in gpu_mem
+    gpu = get_mem()
+  File "/home/pocadmin/jupyterlab-ANDashboard/jupyterlab_nvdashboard/apps/gpu.py", line 162, in get_mem
+    return amd.getGPUMemUse()
+AttributeError: 'AmdGpuProperties' object has no attribute 'getGPUMemUse'
+2021-05-25 15:20:19,833 ERROR tornado.access 500 GET /GPU-Memory (127.0.0.1) 6.51ms
+2021-05-25 15:20:19,931 INFO tornado.access 200 GET /GPU-Utilization (127.0.0.1) 97.31ms
+2021-05-25 15:20:20,204 INFO tornado.access 101 GET /GPU-Utilization/ws (127.0.0.1) 1.34ms

@@ -13,11 +13,8 @@ DEFAULT_PORT = 8000
 routes = {
     "/GPU-Utilization": apps.gpu.gpu,
     "/GPU-Memory": apps.gpu.gpu_mem,
-    "/GPU-Resources": apps.gpu.gpu_resource_timeline,
-    "/PCIe-Throughput": apps.gpu.pci,
-    "/NVLink-Throughput": apps.gpu.nvlink,
-    "/NVLink-Timeline": apps.gpu.nvlink_timeline,
-    # "/CPU-Utilization": apps.cpu.cpu,
+    "/GPU-Clock-Frequency": apps.gpu.gpu_clock_frequency,
+    # "/PCIe-Throughput": apps.gpu.pci,
     "/Machine-Resources": apps.cpu.resource_timeline,
 }
 
