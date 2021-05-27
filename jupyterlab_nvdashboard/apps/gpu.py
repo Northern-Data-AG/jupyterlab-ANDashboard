@@ -29,7 +29,7 @@ class AmdGpuProperties:
     def get_gpu_count(self) -> int:
         """Get the number of working GPUs."""
         try:
-            output = self.bash.run("rocm-smi", capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run("rocm-smi", stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 gpus_count = [int(num) for num in re.findall(r'[0-9]* ', output) if num != " "]
                 if len(gpus_count) == 0:
@@ -46,7 +46,7 @@ class AmdGpuProperties:
     def get_gpu_utilization(self, flag="-u") -> List[int]:
         """Return the utilization of each GPU in %."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run(["rocm-smi", flag], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 util = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
                 
@@ -59,7 +59,7 @@ class AmdGpuProperties:
     def get_gpu_clock_freq(self, flag="-g") -> List[int]:
         """Return the clock frequence of each GPU in Mhz."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run(["rocm-smi", flag], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 freq = [int(num[1:]) for num in re.findall(r'\([0-9]*', output)]
                 return freq
@@ -71,7 +71,7 @@ class AmdGpuProperties:
     def get_gpu_mem_use(self, flag="--showmemuse") -> List[int]:
         """Return the current memory usage of each GPU in %."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run(["rocm-smi", flag], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 memUse = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
                 
@@ -85,7 +85,7 @@ class AmdGpuProperties:
     def get_gpu_pcie_bandwith(self, flag="-b") -> List[float]:
         """Return the estimated maximum PCIe bandwith in MB/s."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run(["rocm-smi", flag], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 pcie_use = [float(num[:-1]) for num in re.findall(r' [0-9]*\.[0-9]*\n', output)]
                 return pcie_use
@@ -97,7 +97,7 @@ class AmdGpuProperties:
     def get_gpu_voltage(self, flag="--showvoltage") -> List[int]:
         """Return the current Voltage per GPU in mV."""
         try:
-            output = self.bash.run(["rocm-smi", flag], capture_output=True).stdout.decode("utf-8")
+            output = self.bash.run(["rocm-smi", flag], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8")
             if "ROCm System Management Interface" in output:
                 voltage = [int(num[:-1]) for num in re.findall(r' [0-9]*\n', output)]
                 return voltage
@@ -146,14 +146,14 @@ def gpu(doc):
     def cb():
         source.data.update({"gpu": get_utilization()})
 
-    doc.add_periodic_callback(cb, 1000)
+    doc.add_periodic_callback(cb, 500)
 
 
 def gpu_mem(doc):
     fig = figure(title="GPU Memory Utilization", sizing_mode="stretch_both", x_range=[0, 100])
 
     def get_utilization():
-        return amd.get_gpu_utilization()
+        return amd.get_gpu_mem_use()
 
     gpu = get_utilization()
     y = list(range(len(gpu)))
@@ -176,11 +176,11 @@ def gpu_mem(doc):
     def cb():
         source.data.update({"memory": get_utilization()})
 
-    doc.add_periodic_callback(cb, 1000)
+    doc.add_periodic_callback(cb, 500)
 
 def gpu_clock_frequency(doc):
    
-    fig = figure(title="GPU Clock Frequency [Mhz]", sizing_mode="stretch_both", y_range=[0, 2200])
+    fig = figure(title="GPU Clock Frequency [Mhz]", sizing_mode="stretch_both", y_range=[0, 1500])
 
     frequency = amd.get_gpu_clock_freq()
     print(frequency)
@@ -205,7 +205,7 @@ def gpu_clock_frequency(doc):
     def cb():
         source.data.update({"frequency": frequency})
 
-    doc.add_periodic_callback(cb, 1000)
+    doc.add_periodic_callback(cb, 500)
 
 
 
@@ -213,9 +213,8 @@ def gpu_clock_frequency(doc):
 
 def gpu_resource_timeline(doc):
 
-    memory_list = amd.getGPUMemUse()
-    gpu_mem_max = max(memory_list) * (1024 * 1024)
-    gpu_mem_sum = sum(memory_list)
+    gpu_mem_max = 100
+    gpu_mem_sum = gpu_mem_max * ngpus
 
     # Shared X Range for all plots
     x_range = DataRange1d(follow="end", follow_interval=20000, range_padding=0)
@@ -225,8 +224,6 @@ def gpu_resource_timeline(doc):
         "time": [],
         "gpu-total": [],
         "memory-total": [],
-        "rx-total": [],
-        "tx-total": [],
     }
     for i in range(ngpus):
         item_dict["gpu-" + str(i)] = []
@@ -290,21 +287,9 @@ def gpu_resource_timeline(doc):
     )
     tot_fig.legend.location = "top_left"
 
-    pci_fig = figure(
-        title="Total PCI Throughput [B/s]",
-        sizing_mode="stretch_both",
-        x_axis_type="datetime",
-        x_range=x_range,
-        tools=tools,
-    )
-    pci_fig.line(source=source, x="time", y="tx-total", color="blue", legend="TX")
-    pci_fig.line(source=source, x="time", y="rx-total", color="red", legend="RX")
-    pci_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    pci_fig.legend.location = "top_left"
-
     doc.title = "Resource Timeline"
     doc.add_root(
-        column(gpu_fig, memory_fig, tot_fig, pci_fig, sizing_mode="stretch_both")
+        column(gpu_fig, memory_fig, tot_fig, sizing_mode="stretch_both")
     )
 
     last_time = time.time()
@@ -315,26 +300,18 @@ def gpu_resource_timeline(doc):
         src_dict = {"time": [now * 1000]}
         gpu_tot = 0
         mem_tot = 0
-        tx_tot = 0
-        rx_tot = 0
+        gpu = amd.get_gpu_utilization()
+        mem = amd.get_gpu_mem_use()
         for i in range(ngpus):
-            gpu = amd.get_gpu_utilization()
-            mem = amd.get_gpu_mem_use()
-            tx = 0
-            rx = 0
-            gpu_tot += gpu
-            mem_tot += mem / (1024 * 1024)
-            rx_tot += rx
-            tx_tot += tx
-            src_dict["gpu-" + str(i)] = [gpu]
-            src_dict["memory-" + str(i)] = [mem]
+            gpu_tot += gpu[i]
+            mem_tot += mem[i]
+            src_dict["gpu-" + str(i)] = [gpu[i]]
+            src_dict["memory-" + str(i)] = [mem[i]]
         src_dict["gpu-total"] = [gpu_tot / ngpus]
         src_dict["memory-total"] = [(mem_tot / gpu_mem_sum) * 100]
-        src_dict["tx-total"] = [tx_tot]
-        src_dict["rx-total"] = [rx_tot]
 
         source.stream(src_dict, 1000)
 
         last_time = now
 
-    doc.add_periodic_callback(cb, 200)
+    doc.add_periodic_callback(cb, 1000)

@@ -14,7 +14,7 @@ routes = {
     "/GPU-Utilization": apps.gpu.gpu,
     "/GPU-Memory": apps.gpu.gpu_mem,
     "/GPU-Clock-Frequency": apps.gpu.gpu_clock_frequency,
-    # "/PCIe-Throughput": apps.gpu.pci,
+    "/GPU-Resource-Timeline": apps.gpu.gpu_resource_timeline,
     "/Machine-Resources": apps.cpu.resource_timeline,
 }
 

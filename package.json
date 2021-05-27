@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab-nvdashboard",
-  "version": "0.6.4",
+  "version": "0.6.9",
   "description": "A JupyterLab extension for displaying GPU usage dashboards",
   "keywords": [
     "jupyter",
