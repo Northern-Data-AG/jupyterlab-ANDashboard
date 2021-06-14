@@ -21,15 +21,13 @@ pip install jupyterlab_nvdashboard
 
 ## Troubleshoot
 
-If you are seeing the frontend extension, but it is not working, check
-that the server extension is enabled:
+If you are seeing the frontend extension but it is not working, check that the server extension is enabled:
 
 ```bash
 jupyter server extension list
 ```
 
-If the server extension is installed and enabled, but you are not seeing
-the frontend extension, check the frontend extension is installed:
+If the server extension is installed and enabled but you are not seeing the frontend extension, check that the frontend extension is installed:
 
 ```bash
 jupyter labextension list
@@ -40,11 +38,9 @@ jupyter labextension list
 
 ### Development install
 
-Note: You will need NodeJS to build the extension package.
+**Note**: You will need NodeJS to build the extension package.
 
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
+The `jlpm` command is JupyterLab's pinned version of [yarn](https://yarnpkg.com/) which is installed with JupyterLab. You may use `yarn` or `npm` in lieu of `jlpm` below.
 
 ```bash
 # Clone the repo to your local environment
