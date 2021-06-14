@@ -2,12 +2,10 @@
 
 ![Github Actions Status](https://github.com/rapidsai/jupyterlab-nvdashboard/workflows/Build/badge.svg)
 
-A JupyterLab extension for displaying GPU usage dashboards
+A JupyterLab extension for displaying GPU usage dashboards.
 
 
-This extension is composed of a Python package named `jupyterlab_nvdashboard`
-for the server extension and a NPM package named `jupyterlab-nvdashboard`
-for the frontend extension.
+This extension is composed of a Python package named `jupyterlab_nvdashboard` for the server extension and a NPM package named `jupyterlab-nvdashboard` for the frontend extension.
 
 
 ## Requirements
